@@ -1,0 +1,244 @@
+{% extends "pos_app/base.html" %}
+{% block title %} Pos | Inventory {% endblock title %}
+{% block content %}
+
+
+
+<div class="inventory_container d-flex mt-4">
+    <section class="product_section d-flex m-3 me-2 justify-content-between">
+        <style>
+            #categoriess a:hover{
+                color: white !important;
+            }
+        </style>
+        <div id="categoriess" class="btn-new shadow-new text-white px-4 py-2 d-flex align-items-center">
+            <a class="" href="#" role="button" id="" data-bs-toggle="" aria-expanded="false">
+                Categories
+              </a>
+        </div>
+        <div class="d-flex ">
+            <div class="btn-new py-2 me-2 px-3 shadow-new d-flex align-items-center position-relative">
+                <i class="fa-regular fa-bell text-white fs-5" id="notif_fa-bell_btn" style="cursor: pointer !important;">
+                    <p id="notif_fa-bell" class="d-none p-2 bg-danger rounded-circle text-white position-absolute top-1 right-1"></p>
+                </i>
+            </div>
+            <div class="custom-dropdown btn-new  text-white shadow-new">
+                <button class="custom-dropdown-btn fs-5 px-4" id="new_pro_or_cate">
+                    <span class="fs-5 fw-bold">New</span>
+                    <i class="fa-solid fa-chevron-up ms-2" id="dropdownIcon_new"></i>
+                </button>
+                <ul class="custom-dropdown-menu" id="dropdownmenu_new">
+                    <li><a href="#" id="new_cate_click">New Category</a></li>
+                    <li><a href="#" id="new_pro_click">New Product</a></li>
+                </ul>
+            </div>
+        </div>
+    </section>
+    <section class="low_stock_section d-flex m-3 ms-2">
+    </section>
+</div>
+<div class="d-flex mt-0 p-0">
+    <section class="product_section d-flex flex-column m-3 me-2 justify-content-between  shadow-new bg-white"  style="height: 100% !important; ">
+        <div class="d-flex justify-content-between w-100">
+            <div class="custom-dropdown shadow-new btn-new m-3">
+                <button class="custom-dropdown-btn d-flex align-items-center justify-content-between" id="dropdownBtn">
+                    <span id="selectedCategory_normal" data-category_id_normal="{{categories.0.id}}">
+                        {% if categories %}
+                            {{ categories.0.name }}
+                        {% else %}
+                            Category
+                        {% endif %}
+                    </span>
+                    <i class="fa-solid fa-chevron-up ms-2" id="dropdownIcon"></i>
+                </button>            
+                {% if categories|length > 1 %}
+                <ul class="custom-dropdown-menu" id="dropdownMenu">
+                    {% for category in categories|slice:"1:" %}
+                        <li><a href="#" class="category-item-normal" data-id="{{category.id}}">{{ category.name }}</a></li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+            </div>            
+            <div class="d-flex align-items-center ms-3 me-2">
+                <input class="text-white"
+                    id="search"
+                    type="text"
+                    placeholder="Search items here"
+                    style="height: 40px; border-radius: 20px; background-color: rgb(170, 170, 170); padding: 0 15px; border: none; cursor: pointer; color: white;" />
+                <button type="button"
+                    style="background-color: rgb(2, 119, 55); border: none; border-radius: 50%; padding: 10px; margin-left: 5px; display: flex; align-items: center; justify-content: center; height: 40px; width: 40px; cursor: pointer;">
+                    <i class="fa-solid fa-magnifying-glass text-white"></i>
+                </button>
+            </div>
+        </div>
+        <div class="low_stock_table_container_listt mt-4 pt-2" style="height: 487px !important; overflow-y: auto !important">
+            <table class="table table-hover position-relative"  >
+                <thead>
+                    <tr>
+                        <th>Product Name</th>
+                        <th>SKU</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Discount</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody class="overflow-auto" id="product-listt">
+                  
+                </tbody>
+            </table>
+        </div>
+    </section>
+    <section class="low_stock_section d-flex flex-column m-3 ms-2 p-4 shadow-new bg-white" style="height: 100% !important; ">
+                <h1 class="text-start fs-3 fw-bold ">Low Stock</h1>
+                <div class="low_stock_table_container mt-4 pt-2" style="height: 487px !important; overflow-y: auto !important">
+                    <table class="table table-hover position-relative"  >
+                        <thead>
+                            <tr>
+                                <th>Product Name</th>
+                                <th>Quantity Left</th>
+                            </tr>
+                        </thead>
+                        <tbody class="overflow-auto">
+                            {% if low_stock_quantity %}
+                                {% for low_stock in low_stock_quantity %}
+                                    <tr>
+                                        <td>{{low_stock.name}}</td>
+                                        <td>{{low_stock.quantity_in_stock}}</td>
+                                    </tr>
+                                {% endfor %}
+                            {%else%}
+                                    <td colspan="2">No products are low on stock.</td>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+    </section>
+
+
+</div>
+<form method="post" id="add_product" class="add_product_container d-flex flex-column shadow-new p-4" enctype="multipart/form-data" style="height: 700px !important; width: 700px !important;">
+    {% csrf_token %}  <!-- Add this line -->
+    <header class="d-flex justify-content-between w-100 align-items-center px-3">
+        <h2 class="fs-2 fw-bold " id="add_product_header">Add New Product</h2>
+        <div class="custom-dropdown shadow-new btn-new m-3">
+            <button class="custom-dropdown-btn d-flex align-items-center justify-content-between" id="dropdownBtn_proform">
+                <span id="selectedCategory_normal_normal" data-category_id="{{categories.0.id}}">
+                    {% if categories %}
+                        {{ categories.0.name }}
+                    {% else %}
+                        Category
+                    {% endif %}
+                </span>
+                <i class="fa-solid fa-chevron-up ms-2" id="dropdownIcon_fromform"></i>
+            </button>            
+            {% if categories|length > 1 %}
+            <ul class="custom-dropdown-menu" id="dropdownMenu_proform">
+                {% for category in categories|slice:"1:" %}
+                    <li><a href="#" class="category-item-in-pro-from" data-id="{{ category.id }}">{{ category.name }}</a></li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        </div>      
+    </header>
+    <section class="w-100 mx-2 d-flex justify-content-around">
+        <div class="row" style="width: 100% !important;">
+            <div class="col-12 mb-1">
+                <label for="name" class="form-label fs-5 fw-bold">Name</label>
+                <input id="pro_name" type="text" class="form-control" placeholder="Enter product name">
+            </div>
+            <div class="col-12 mb-1">
+                <label for="SKU" class="form-label fs-5 fw-bold">SKU</label>
+                <input id="SKU" type="text" class="form-control" placeholder="Enter product SKU">
+            </div>
+            <div class="col-12 mb-1">
+                <label for="quantity" class="form-label fs-5 fw-bold">Quantity</label>
+                <input id="qty" type="text" class="form-control" placeholder="Enter product quantity">
+            </div>
+            <div class="col-12 mb-1">
+                <label for="price" class="form-label fs-5 fw-bold">Price</label>
+                <input id="price" type="text" class="form-control" placeholder="Enter product price">
+            </div>
+            <div class="col-12 mb-1">
+                <label for="discount" class="form-label fs-5 fw-bold">Discount</label>
+                <input id="discount" type="text" class="form-control" placeholder="Enter product discount">
+            </div>
+            <div class="col-12 mb-1">
+                <label for="image" class="form-label fs-5 fw-bold">Image</label>
+                <input  id="image" type="file" class="form-control" placeholder="Enter product name">
+                <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                <input id="product_id" type="hidden" type="text" class="form-control">
+            </div>
+        </div>
+        <div id="image_box" class="d-flex align-items-center justify-content-center"
+        style="width: 100% !important; height: 100% !important; ">
+       <span id="empty_text" style="color: #888;">No image selected</span>
+       <img id="preview_image" src="" alt="Image Preview"
+            style="width: 180px !important; height: 250px !important; object-fit: contain; display: none;">
+        </div>          
+    </section>
+    <section class="d-flex justify-content-between w-100 px-4 p-2 mt-auto"> 
+        <button id="add_cancel" class="btn-new shadow-new px-4 py-2 text-white  fs-5 fw-bold" style="background: #F9A013 !important; border: none !important; outline: none !important;">Cancel</button>
+        <button id="btn_add_new_pro" class="btn-new shadow-new px-4 py-2 text-white fs-5 fw-bold" style="border: none !important; outline: none !important;">Add</button>
+    </section>
+</form>
+
+<form method="post" id="add_category" class="add_category_container d-flex flex-column shadow-new p-4" style="min-height: 650px !important; min-width: 500px !important;">
+    <header class="d-flex justify-content-between w-100 align-items-center px-3">
+        <h2 id="add_new_category" class="fs-2 fw-bold ">Add New Category</h2>
+    </header>
+    <section class="row mx-0 w-100">
+        <div class="col-12 mb-1 w-100">
+            <label for="name" class="form-label fs-5 fw-bold">Name</label>
+            <input type="text" id="category_name"  class="form-control" placeholder="Enter product name">
+            <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+            <input type="hidden" name="" id="category_id">
+        </div>
+    </section>
+    <section class="d-flex justify-content-between w-100 px-4 p-2 mt-auto"> 
+        <button id="add_cate_cancel" class="btn-new shadow-new px-4 py-2 text-white  fs-5 fw-bold" style="background: #F9A013 !important; border: none !important;
+        outline: none !important;">Cancel</button>
+        <button id="btn_submit_category" class="btn-new shadow-new px-4 py-2 text-white fs-5 fw-bold" style="border: none !important;
+        outline: none !important;">Add</button>
+    </section>
+</form>
+
+<div id="category" class="add_category_container d-flex flex-column shadow-new p-4" style="height: 650px !important; min-width: 500px !important;">
+    <header class="d-flex justify-content-between w-100 align-items-center px-3">
+        <h2 class="fs-2 fw-bold">All Categories</h2>
+    </header>
+    <div class="table_container w-100">
+        <table class="table table-hover text-center">
+            <thead>
+                <tr>
+                    <th>Category Name</th>
+                    <th>
+                        Action
+                    </th>
+                </tr>
+                <tbody>
+                    {% if categories%}
+                    {% for category in categories %}
+                    <tr>
+                        <td class="pt-3">
+                            {{category.name}}
+                        </td>
+                        <td>
+                            <button class="btn btn-warning btn-edit-category" data-category_id="{{ category.id }}">Edit</button>
+                            <button class="btn btn-danger btn-delete-category" data-category_id="{{ category.id }}">Delete</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {%endif%}
+                </tbody>
+            </thead>
+        </table>
+    </div>
+    <section class="d-flex justify-content-between w-100 px-4 p-2 mt-auto"> 
+        <button id="add_cate_close" class="btn-new shadow-new px-4 py-2 text-white  fs-5 fw-bold" style="background: #F9A013 !important; border: none !important;
+        outline: none !important;">Close</button>
+    </section>
+</div>
+
+{% endblock content %}
