@@ -433,7 +433,7 @@ def low_product(request):
 
 def recent_transactions(request):
     # Get the most recent transactions (e.g., last 5)
-    recent_sales = Sale.objects.all().order_by('-created_at')[:5]
+    recent_sales = Sale.objects.all().order_by('-created_at')[:10]
     
 
     for sale in recent_sales:
